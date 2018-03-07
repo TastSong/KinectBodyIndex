@@ -39,5 +39,7 @@ private:
 	static int bgCount;
 	//±³¾°×ª»¯
 	void ChangeBg();
+	//Í¼Æ¬ÒÆ¶¯
+	Mat move(Mat moveImg);
 };
 

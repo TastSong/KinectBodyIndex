@@ -59,6 +59,7 @@ bool CPictureSynthesis::Open(IKinectSensor* kinect)
 Mat CPictureSynthesis::PictureSynthesis()
 {
 	this->ChangeBg();
+	this->bodyImg = this->move(bodyImg);
 
 	HRESULT hResult;
 	
@@ -116,4 +117,36 @@ void CPictureSynthesis::ChangeBg()
 
 	resize(bg, this->background, Size(this->width, this->height));   //调整至彩色图像的大小
 		
+}
+
+//图片移动
+Mat CPictureSynthesis::move(Mat moveImg)
+{
+	Mat result = moveImg;
+	Vec3b temp = moveImg.at<Vec3b>(0, 0);
+
+	for (int x = 0; x < this->height; x++)
+	{
+		for (int y = 0; y < this->width; y++)
+
+		{
+			//show.at<Vec3b>(x, y) = this->bodyImg.at<Vec3b>(x, y);
+			//Vec3b temp = moveImg.at<Vec3b>(x, y);
+			if (0 == y)
+			{
+				temp = moveImg.at<Vec3b>(x, y);
+				result.at<Vec3b>(x, y) = moveImg.at<Vec3b>(x, y + 1);
+			}
+			else if (y > 0 && y < this->width - 1)
+			{
+				result.at<Vec3b>(x, y) = moveImg.at<Vec3b>(x, y + 1);
+			}
+			else
+			{
+				result.at<Vec3b>(x, y - 1) = temp;
+			}
+		}
+	}
+
+	return result;
 }
