@@ -5,6 +5,7 @@
 #include <iostream>
 #include <Kinect.h>
 #include <iostream>
+#include <io.h>
 
 using namespace std;
 
@@ -17,6 +18,7 @@ CPictureSynthesis::CPictureSynthesis()
 	this->fd = nullptr;
 	this->width = 0;
 	this->height = 0;
+	this->bgNum = 0;
 }
 
 CPictureSynthesis::~CPictureSynthesis()
@@ -32,6 +34,8 @@ CPictureSynthesis::~CPictureSynthesis()
 
 bool CPictureSynthesis::Open(IKinectSensor* kinect)
 {
+	BgCount();
+
 	this->kinect = kinect;
 	//获取身体索引帧的来源。
 	kinect->get_BodyIndexFrameSource(&bodyIndexFrameSource);
@@ -51,7 +55,7 @@ bool CPictureSynthesis::Open(IKinectSensor* kinect)
 
 	Mat bg = imread("./Background/bg0.jpg");
 	resize(bg, this->background, Size(this->width, this->height));   //调整至彩色图像的大小
-	Mat body = imread("./Background/body.jpg");
+	Mat body = imread("./Background/body.png");
 	resize(body, this->bodyImg, Size(this->width, this->height));   //调整至彩色图像的大小
 
 	return true;
@@ -105,7 +109,11 @@ int CPictureSynthesis::bgCount = 0;
 void CPictureSynthesis::ChangeBg()
 {
 	this->bgCount++;
-	this->bgCount = (this->bgCount) % 20;
+	this->bgCount = (this->bgCount) % this->bgNum;
+	if (400000 == this->bgCount)
+	{
+		this->bgCount = 0;
+	}
 	//路径
 	string str1 = "./Background/bg";
 	char str2[100];
@@ -149,4 +157,33 @@ Mat CPictureSynthesis::move(Mat moveImg)
 	}
 
 	return result;
+}
+//计算背景的数量
+void CPictureSynthesis::BgCount()
+{
+	string file_path = "./Background/";
+	string search_path = file_path + "*.jpg";
+	vector<string> file_list;
+	this->get_filelist_from_dir(search_path, file_list);
+
+	this->bgNum = file_list.size();
+}
+
+bool CPictureSynthesis::get_filelist_from_dir(string path, vector<string>& files)
+{
+	long   hFile = 0;
+	struct _finddata_t fileinfo;
+	files.clear();
+	if ((hFile = _findfirst(path.c_str(), &fileinfo)) != -1)
+	{
+		do
+		{
+			if (!(fileinfo.attrib &  _A_SUBDIR))
+				files.push_back(fileinfo.name);
+		} while (_findnext(hFile, &fileinfo) == 0);
+		_findclose(hFile);
+		return true;
+	}
+	else
+		return false;
 }

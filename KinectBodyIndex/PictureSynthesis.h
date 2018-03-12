@@ -33,6 +33,8 @@ private:
 	Mat background;
 	//前景
 	Mat bodyImg;
+	//背景图片数量
+	int bgNum;
 
 private:
 	//背景计数器
@@ -41,5 +43,9 @@ private:
 	void ChangeBg();
 	//图片移动
 	Mat move(Mat moveImg);
+	//背景图片数量计算
+	void BgCount();
+
+	bool get_filelist_from_dir(string path, vector<string>& files);
 };
 
